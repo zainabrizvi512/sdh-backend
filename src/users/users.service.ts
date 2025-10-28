@@ -1,5 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import axios from 'axios';
+import { User } from './user.entity';
+import { AuthUserDto } from './dto/auth-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 type MgmtToken = { token: string; exp: number };
 
@@ -7,11 +11,11 @@ type MgmtToken = { token: string; exp: number };
 export class UsersService {
     private mgmtToken: MgmtToken | null = null;
 
+    constructor(@InjectRepository(User) private repo: Repository<User>) { }
+
     private async getManagementToken(): Promise<string> {
         const now = Math.floor(Date.now() / 1000);
-        if (this.mgmtToken && this.mgmtToken.exp - 30 > now) {
-            return this.mgmtToken.token;
-        }
+        if (this.mgmtToken && this.mgmtToken.exp - 30 > now) return this.mgmtToken.token;
 
         try {
             const url = `https://${process.env.AUTH0_DOMAIN}/oauth/token`;
@@ -22,38 +26,22 @@ export class UsersService {
                 audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
             });
 
-            this.mgmtToken = {
-                token: data.access_token,
-                exp: now + (data.expires_in ?? 3600),
-            };
-
+            this.mgmtToken = { token: data.access_token, exp: now + (data.expires_in ?? 3600) };
             return this.mgmtToken.token;
         } catch (e) {
-            throw new InternalServerErrorException('Auth0 management token error');
+            throw new InternalServerErrorException('Auth0 management token error', e as any);
         }
     }
 
-    // sub looks like: "auth0|1234567890" or "google-oauth2|abcdef"
+    // Pulls profile from Auth0 Management API
     async getUserBySub(sub: string) {
         const token = await this.getManagementToken();
         const url = `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(sub)}`;
-        const { data } = await axios.get(url, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        // Example shape:
-        // {
-        //   "user_id": "auth0|abc",
-        //   "email": "x@y.com",
-        //   "name": "John Doe",
-        //   "picture": "https://.../pic.jpg",
-        //   "identities": [{ "provider": "auth0", "connection": "Username-Password-Authentication", ...}],
-        //   ...
-        // }
+        const { data } = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
 
         const connectionType =
-            Array.isArray(data.identities) && data.identities[0]?.connection
-                ? data.identities[0].connection
+            Array.isArray(data.identities) && data.identities[0]
+                ? data.identities[0].connection ?? data.identities[0].provider
                 : null;
 
         return {
@@ -62,7 +50,40 @@ export class UsersService {
             name: data.name ?? null,
             picture: data.picture ?? null,
             connectionType,
-            raw: data, // keep if you want everything
+            raw: data,
         };
+    }
+
+    // INSERT if not exists; UPDATE if exists; always return the saved entity
+    async upsertFromAuthProfile(input: AuthUserDto): Promise<User> {
+        const existing = await this.repo.findOne({ where: { sub: input.sub } });
+
+        // Derive a sensible username if nickname is missing
+        const derivedUsername =
+            input.nickname ??
+            (input.email ? input.email.split('@')[0] : undefined) ??
+            (input.name ?? undefined);
+
+        if (existing) {
+            existing.email = input.email ?? existing.email;
+            existing.picture = input.picture ?? existing.picture;
+            existing.username = derivedUsername ?? existing.username;
+            existing.connectionType = input.connectionType ?? existing.connectionType ?? 'unknown';
+            return this.repo.save(existing);
+        }
+
+        const created = this.repo.create({
+            sub: input.sub,
+            email: input.email ?? '',
+            picture: input.picture ?? undefined,
+            username: derivedUsername,
+            connectionType: input.connectionType ?? 'unknown',
+        });
+
+        return this.repo.save(created);
+    }
+
+    async findBySub(sub: string) {
+        return this.repo.findOne({ where: { sub } });
     }
 }

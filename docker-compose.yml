@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16
+    container_name: sdh_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sdh_user
+      POSTGRES_PASSWORD: sdh_pass
+      POSTGRES_DB: sdh_main
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:4
+    container_name: sdh_adminer
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sdh_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

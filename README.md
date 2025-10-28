@@ -34,6 +34,9 @@ $ npm install
 ## Compile and run the project
 
 ```bash
+# Loading Database and App
+$ docker compose up --build
+
 # development
 $ npm run start
 
