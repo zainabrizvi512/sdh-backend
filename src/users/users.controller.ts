@@ -1,7 +1,8 @@
-import { BadRequestException, Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Patch, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { AuthUserDto } from './dto/auth-user.dto';
+import { UpdateLocationDto } from './dto/update-location.dto';
 
 @Controller('users')
 export class UsersController {
@@ -47,5 +48,19 @@ export class UsersController {
         // Upsert and return the DB user object
         const user = await this.usersService.upsertFromAuthProfile(dto);
         return user;
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Patch('me/location')
+    async updateMyLocation(
+        @Req() req: any,
+        @Body()
+        dto: UpdateLocationDto,
+    ) {
+        const sub = req.user?.sub;
+        if (!sub) throw new BadRequestException('Missing sub in token');
+
+        const updated = await this.usersService.updateLocation(sub, dto);
+        return updated;
     }
 }

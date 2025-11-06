@@ -33,6 +33,18 @@ export class User {
     @Column({ type: 'varchar', length: 50 })
     connectionType: string; // e.g., 'email', 'google-oauth2', etc.
 
+    @Column({ type: 'point', nullable: true })
+    location?: string; // e.g. "(73.0479,33.6844)"  => (lon, lat)
+
+    @Column({ type: 'varchar', length: 120, nullable: true })
+    city?: string;
+
+    @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+    latitude?: number;
+
+    @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+    longitude?: number;
+
     @CreateDateColumn()
     createdAt: Date;
 
