@@ -7,6 +7,7 @@ import { dataSourceOptions } from './config/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { GroupModule } from './group/group.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { GroupModule } from './group/group.module';
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
     UsersModule,
-    GroupModule
+    GroupModule,
+    MessagesModule
   ],
   controllers: [AppController],
   providers: [AppService],

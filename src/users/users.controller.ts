@@ -1,8 +1,9 @@
-import { BadRequestException, Body, Controller, Get, Patch, Req, UseGuards, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { AuthUserDto } from './dto/auth-user.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { ListUsersQueryDto } from './dto/list-users.query.dto';
 
 @Controller('users')
 export class UsersController {
@@ -62,5 +63,13 @@ export class UsersController {
 
         const updated = await this.usersService.updateLocation(sub, dto);
         return updated;
+    }
+
+    // GET /users?q=ali&limit=25&offset=0&excludeGroupId=...&notInGroup=true
+    @UseGuards(AuthGuard('jwt'))
+    @Get()
+    async listAll(@Req() req: any, @Query() query: ListUsersQueryDto) {
+        const requesterId = req.user.sub;
+        return this.usersService.listAllUsers(requesterId, query);
     }
 }

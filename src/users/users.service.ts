@@ -5,6 +5,9 @@ import { AuthUserDto } from './dto/auth-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { UserSummary } from './types/user-summary.types';
+import { ListUsersQueryDto } from './dto/list-users.query.dto';
+import { Group } from 'src/group/group.entity';
 
 type MgmtToken = { token: string; exp: number };
 
@@ -124,5 +127,73 @@ export class UsersService {
         }
 
         return this.repo.save(user);
+    }
+
+    async listAllUsers(
+        requesterId: string,
+        query: ListUsersQueryDto
+    ): Promise<{ items: UserSummary[]; total: number; nextOffset: number | null }> {
+        const { q, offset = 0, limit = 25, excludeGroupId, notInGroup = "false", excludeSelf = "true" } = query;
+
+        const qb = this.repo
+            .createQueryBuilder("u")
+            .select(["u.id", "u.username", "u.email", "u.picture"]);
+
+        // search by username/email (case-insensitive)
+        if (q?.trim()) {
+            qb.andWhere("(LOWER(u.username) LIKE :q OR LOWER(u.email) LIKE :q)", {
+                q: `%${q.trim().toLowerCase()}%`,
+            });
+        }
+
+        // exclude requester
+        if (excludeSelf === "true") {
+            qb.andWhere("u.sub <> :requesterId", { requesterId });
+        }
+
+        // exclude users already in a given group (owner or members)
+        if (excludeGroupId && notInGroup === "true") {
+            // Join against group owner + members relation
+            // Assuming Group has owner: User and members: User[]
+            qb.andWhere((qb2) => {
+                const sub = qb2.subQuery()
+                    .select("g_owner.id", "uid")
+                    .from(Group, "g")
+                    .leftJoin("g.owner", "g_owner")
+                    .where("g.id = :excludeGroupId", { excludeGroupId })
+                    .getQuery();
+
+                const sub2 = qb2.subQuery()
+                    .select("gm.id", "uid")
+                    .from(Group, "g2")
+                    .leftJoin("g2.members", "gm")
+                    .where("g2.id = :excludeGroupId", { excludeGroupId })
+                    .getQuery();
+
+                // exclude if id is in owner OR in members
+                return `u.id NOT IN (${sub}) AND u.id NOT IN (${sub2})`;
+            });
+        }
+
+        // total count (for pagination UI)
+        const total = await qb.getCount();
+
+        // page
+        qb.orderBy("LOWER(u.username)", "ASC", "NULLS LAST")
+            .addOrderBy("LOWER(u.email)", "ASC")
+            .offset(offset)
+            .limit(limit);
+
+        const rows = await qb.getRawAndEntities();
+        const items: UserSummary[] = rows.entities.map((u) => ({
+            id: u.id,
+            username: u.username ?? null,
+            email: u.email,
+            picture: u.picture ?? null,
+        }));
+
+        const nextOffset = offset + limit < total ? offset + limit : null;
+
+        return { items, total, nextOffset };
     }
 }

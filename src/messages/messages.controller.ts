@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MarkReadDto } from './dto/mark-read.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('groups/:groupId/messages')
-@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class MessagesController {
     constructor(private readonly messages: MessagesService) { }
 
@@ -23,7 +24,7 @@ export class MessagesController {
         @Query('beforeId') beforeId?: string,
         @Query('afterId') afterId?: string,
     ) {
-        const uid = req.user.id;
+        const uid = req.user.sub;
         return this.messages.listMessages(uid, groupId, {
             limit: limit ? Number(limit) : undefined,
             beforeId,

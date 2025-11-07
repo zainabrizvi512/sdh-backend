@@ -18,7 +18,7 @@ export class GroupService {
     ) { }
 
     private async getUserOrThrow(userId: string): Promise<User> {
-        const u = await this.usersRepo.findOne({ where: { id: userId } });
+        const u = await this.usersRepo.findOne({ where: { sub: userId } });
         if (!u) throw new NotFoundException('User not found');
         return u;
     }
@@ -56,7 +56,7 @@ export class GroupService {
         if (!group) throw new NotFoundException('Group not found');
 
         // simple permission: only owner can modify
-        if (group.owner.id !== currentUserId) {
+        if (group.owner.sub !== currentUserId) {
             throw new ForbiddenException('Only the group owner can add members');
         }
 
@@ -108,7 +108,7 @@ export class GroupService {
             .createQueryBuilder('g')
             .leftJoinAndSelect('g.members', 'm')
             .leftJoinAndSelect('g.owner', 'o')
-            .where('m.id = :uid OR o.id = :uid', { uid: currentUserId })
+            .where('m.sub = :uid OR o.sub = :uid', { uid: currentUserId })
             .orderBy('g.updatedAt', 'DESC')
             .getMany();
 
@@ -191,8 +191,8 @@ export class GroupService {
 
         // Must be owner or member to view the list
         const isMember =
-            group.owner.id === currentUserId ||
-            group.members.some((m) => m.id === currentUserId);
+            group.owner.sub === currentUserId ||
+            group.members.some((m) => m.sub === currentUserId);
 
         if (!isMember) throw new ForbiddenException('You are not a member of this group');
 

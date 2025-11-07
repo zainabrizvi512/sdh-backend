@@ -24,10 +24,10 @@ export class MessagesService {
     private async assertMember(userId: string, groupId: string): Promise<{ group: Group; user: User }> {
         const group = await this.groupRepo.findOne({ where: { id: groupId } });
         if (!group) throw new NotFoundException('Group not found');
-        const user = await this.userRepo.findOne({ where: { id: userId } });
+        const user = await this.userRepo.findOne({ where: { sub: userId } });
         if (!user) throw new NotFoundException('User not found');
 
-        const isMember = group.members.some(m => m.id === userId) || group.owner.id === userId;
+        const isMember = group.members.some(m => m.sub === userId) || group.owner.sub === userId;
         if (!isMember) throw new ForbiddenException('Not a member of this group');
         return { group, user };
     }
