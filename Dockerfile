@@ -2,6 +2,8 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
+COPY sdh-service-account-key.json /app/secrets/gcp.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/secrets/gcp.json
 RUN npm ci
 COPY . .
 RUN npm run build
