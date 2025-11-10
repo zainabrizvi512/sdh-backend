@@ -9,10 +9,12 @@ import { MessagesGateway } from './messages.gateway';
 import { User } from '../users/user.entity';
 import { Group } from 'src/group/group.entity';
 import { UploadsController } from './uploads.controller';
+import { MessagesRestController } from './messages.rest.controller';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Message, MessageAttachment, MessageRead, Group, User])],
-    controllers: [MessagesController, UploadsController],
+    imports: [TypeOrmModule.forFeature([Message, MessageAttachment, MessageRead, Group, User]), StorageModule],
+    controllers: [MessagesController, UploadsController, MessagesRestController],
     providers: [MessagesService, MessagesGateway],
     exports: [MessagesService],
 })

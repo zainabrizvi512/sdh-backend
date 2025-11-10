@@ -8,8 +8,12 @@ import { MessageAttachment } from './messageAttachment.entity';
 
 export enum MessageType {
     TEXT = 'text',
-    IMAGE = 'image', // message that’s mainly an image with optional caption
+    IMAGE = 'image',
+    LOCATION = 'location',
+    AUDIO = 'audio'
 }
+
+export type MessageKind = "text" | "location" | "system" | "audio";
 
 @Entity('messages')
 export class Message {
@@ -29,8 +33,20 @@ export class Message {
     @Column({ type: 'text', nullable: true })
     text?: string; // optional if images only
 
+    @Column({ type: "enum", enum: ["text", "location", "system", "audio", "image"], default: "text" })
+    kind!: MessageKind;
+
     @OneToMany(() => MessageAttachment, (a) => a.message, { cascade: true, eager: true })
     attachments: MessageAttachment[];
+
+    @Column({ type: "double precision", nullable: true })
+    location_lat: number | null;
+
+    @Column({ type: "double precision", nullable: true })
+    location_lng: number | null;
+
+    @Column({ type: "double precision", nullable: true })
+    location_accuracy: number | null;
 
     @CreateDateColumn()
     createdAt: Date;

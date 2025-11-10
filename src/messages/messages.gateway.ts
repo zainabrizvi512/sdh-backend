@@ -6,6 +6,7 @@ import { Server, Socket } from 'socket.io';
 import { MessagesService } from './messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { WsAuthGuard } from 'src/auth/ws-auth.guard';
+import { MessageType } from './message.entity';
 
 // If you have a WS AuthGuard that sets socket.data.user.id
 @UseGuards(WsAuthGuard)
@@ -47,10 +48,71 @@ export class MessagesGateway {
         @ConnectedSocket() socket: Socket,
         @MessageBody() payload: { groupId: string; dto: SendMessageDto },
     ) {
-        console.log("Message Recieved", socket.data.user.sub);
-        const uid = socket.data?.user?.sub; // set by your WS auth
+        console.log("message recieved")
+        const uid = socket.data?.user?.sub;
+        console.log(uid, payload.groupId, payload.dto)
         const msg = await this.messages.sendMessage(uid, payload.groupId, payload.dto);
         this.server.to(`group:${payload.groupId}`).emit('new_message', msg);
         return msg;
+    }
+
+    @SubscribeMessage('start_live_location')
+    async startLiveLocation(
+        @ConnectedSocket() socket: Socket,
+        @MessageBody() payload: { groupId: string; dto: SendMessageDto } // dto.type === LOCATION, dto.location{lat,lng,accuracy?}
+    ) {
+        const uid = socket.data?.user?.sub;
+        // Persist the initial point as a message
+        const msg = await this.messages.sendMessage(uid, payload.groupId, {
+            ...payload.dto,
+            type: MessageType.LOCATION,
+        });
+        this.server.to(`group:${payload.groupId}`).emit('new_message', msg);
+        return msg;
+    }
+
+    @SubscribeMessage('live_location_update')
+    async liveLocationUpdate(
+        @ConnectedSocket() socket: Socket,
+        @MessageBody() payload: { groupId: string; dto: SendMessageDto } // dto.type === LOCATION
+    ) {
+        const uid = socket.data?.user?.sub;
+
+        // Server-side throttle (5s by default)
+        const accepted = this.messages.acceptLocationUpdate(uid, 5000);
+        if (!accepted) return;
+
+        // Persist/update: simplest is persisting each as a message
+        const msg = await this.messages.sendMessage(uid, payload.groupId, {
+            ...payload.dto,
+            type: MessageType.LOCATION,
+        });
+
+        this.server.to(`group:${payload.groupId}`).emit('new_message', msg);
+        return msg;
+
+        // If you prefer ephemeral pings instead of messages:
+        // this.server.to(`group:${payload.groupId}`).emit('live_location_ping', {
+        //   userId: uid,
+        //   groupId: payload.groupId,
+        //   location: payload.dto.location,
+        //   ts: Date.now(),
+        // });
+        // return { ok: true };
+    }
+
+    @SubscribeMessage('stop_live_location')
+    async stopLiveLocation(
+        @ConnectedSocket() socket: Socket,
+        @MessageBody() payload: { groupId: string }
+    ) {
+        const uid = socket.data?.user?.sub;
+        // Optionally persist a system message; here we just notify
+        this.server.to(`group:${payload.groupId}`).emit('live_location_stopped', {
+            userId: uid,
+            groupId: payload.groupId,
+            ts: Date.now(),
+        });
+        return { ok: true };
     }
 }
