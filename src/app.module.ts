@@ -8,6 +8,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { GroupModule } from './group/group.module';
 import { MessagesModule } from './messages/messages.module';
+import { NewsModule } from './news/news.module';
+import { SafetyModule } from './safety/safety.module';
 
 @Module({
   imports: [
@@ -16,7 +18,9 @@ import { MessagesModule } from './messages/messages.module';
     AuthModule,
     UsersModule,
     GroupModule,
-    MessagesModule
+    MessagesModule,
+    NewsModule,
+    SafetyModule
   ],
   controllers: [AppController],
   providers: [AppService],
