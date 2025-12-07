@@ -199,13 +199,13 @@ export class UsersService {
     }
 
     // ADD inside UsersService class
-async updateProfile(userId: string, dto: UpdateProfileDto) {
-  const user = await this.repo.findOne({ where: { id: userId } });
-  if (!user) throw new NotFoundException('User not found');
+    async updateProfile(userId: string, dto: UpdateProfileDto) {
+        const user = await this.repo.findOne({ where: { sub: userId } });
+        if (!user) throw new NotFoundException('User not found');
 
-  if (dto.dob) dto.dob = new Date(dto.dob).toISOString().slice(0, 10);
+        if (dto.dob) dto.dob = new Date(dto.dob).toISOString().slice(0, 10);
 
-  Object.assign(user, dto);
-  return this.repo.save(user);
-}
+        Object.assign(user, dto);
+        return this.repo.save(user);
+    }
 }
