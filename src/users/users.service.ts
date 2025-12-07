@@ -8,6 +8,7 @@ import { UpdateLocationDto } from './dto/update-location.dto';
 import { UserSummary } from './types/user-summary.types';
 import { ListUsersQueryDto } from './dto/list-users.query.dto';
 import { Group } from 'src/group/group.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 type MgmtToken = { token: string; exp: number };
 
@@ -196,4 +197,15 @@ export class UsersService {
 
         return { items, total, nextOffset };
     }
+
+    // ADD inside UsersService class
+async updateProfile(userId: string, dto: UpdateProfileDto) {
+  const user = await this.repo.findOne({ where: { id: userId } });
+  if (!user) throw new NotFoundException('User not found');
+
+  if (dto.dob) dto.dob = new Date(dto.dob).toISOString().slice(0, 10);
+
+  Object.assign(user, dto);
+  return this.repo.save(user);
+}
 }

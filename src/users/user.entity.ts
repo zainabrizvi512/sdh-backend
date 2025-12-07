@@ -1,12 +1,19 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+    // Column,
+    // CreateDateColumn,
+    // Entity,
+    // PrimaryGeneratedColumn,
+    // UpdateDateColumn,
     Index,
     Unique,
 } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHER = 'other',
+}
 
 @Entity('users')
 @Unique(['sub'])
@@ -50,4 +57,9 @@ export class User {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({ type: 'enum', enum: Gender, nullable: true })
+    gender?: Gender;
+
+    
 }
