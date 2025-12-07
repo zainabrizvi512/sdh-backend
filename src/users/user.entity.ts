@@ -30,6 +30,12 @@ export class User {
     @Column({ type: 'varchar', length: 190 })
     email: string;
 
+    @Column({ type: 'varchar', length: 30 })
+    phone: string;
+
+    @Column({ type: 'varchar', length: 250 })
+    name: string;
+
     @Column({ type: 'varchar', length: 300, nullable: true })
     picture?: string;
 

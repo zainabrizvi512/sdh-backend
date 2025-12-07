@@ -5,7 +5,7 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   @Length(2, 80)
-  fullName?: string;
+  name?: string;
 
   @IsOptional()
   @IsString()
