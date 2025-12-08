@@ -81,11 +81,8 @@ export class UsersService {
                 { id: existing.id },
                 {
                     email: nn(input.email, existing.email),                 // required
-                    picture: opt(input.picture),                             // optional
-                    name: opt(input.name) ?? existing.name,                  // keep old if both undefined
                     username: derivedUsername ?? existing.username,          // optional
                     connectionType: nn(input.connectionType, existing.connectionType ?? 'unknown'),
-                    // ❌ do not include "location" here
                 }
             );
             return this.repo.findOneOrFail({ where: { id: existing.id } });
