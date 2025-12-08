@@ -9,6 +9,7 @@ import { UserSummary } from './types/user-summary.types';
 import { ListUsersQueryDto } from './dto/list-users.query.dto';
 import { Group } from 'src/group/group.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 type MgmtToken = { token: string; exp: number };
 
@@ -213,14 +214,24 @@ export class UsersService {
         return { items, total, nextOffset };
     }
 
-    // ADD inside UsersService class
     async updateProfile(userId: string, dto: UpdateProfileDto) {
-        const user = await this.repo.findOne({ where: { sub: userId } });
-        if (!user) throw new NotFoundException('User not found');
+        const existing = await this.repo.findOne({ where: { sub: userId } });
+        if (!existing) throw new NotFoundException('User not found');
 
-        if (dto.dob) dto.dob = new Date(dto.dob).toISOString().slice(0, 10);
+        // Normalize optional fields (undefined means "don’t change")
+        const payload: QueryDeepPartialEntity<User> = {};
 
-        Object.assign(user, dto);
-        return this.repo.save(user);
+        if (dto.phone !== undefined) payload.phone = dto.phone ?? null;
+        if (dto.name !== undefined) payload.name = dto.name ?? null;
+        if (dto.picture !== undefined) payload.picture = dto.picture ?? null;
+        if (dto.gender !== undefined) payload.gender = dto.gender as any;
+
+        // If you add dob to the entity later, normalize before assigning:
+        // if (dto.dob !== undefined) payload.dob = dto.dob ? dto.dob.slice(0,10) : null;
+
+        // IMPORTANT: this does NOT include "location"
+        await this.repo.update({ id: existing.id }, payload);
+
+        return this.repo.findOneByOrFail({ id: existing.id });
     }
 }
