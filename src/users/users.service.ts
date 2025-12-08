@@ -61,28 +61,43 @@ export class UsersService {
 
     // INSERT if not exists; UPDATE if exists; always return the saved entity
     async upsertFromAuthProfile(input: AuthUserDto): Promise<User> {
+        // helpers to normalize nullables
+        const nn = (v: string | null | undefined, fallback = ''): string =>
+            (v ?? fallback); // required strings
+        const opt = <T extends string>(v: T | null | undefined): T | undefined =>
+            (v ?? undefined); // optional strings (undefined, not null)
+
         const existing = await this.repo.findOne({ where: { sub: input.sub } });
 
-        // Derive a sensible username if nickname is missing
-        const derivedUsername =
-            input.nickname ??
+        // derive username without ever returning null
+        const derivedUsername: string | undefined =
+            opt(input.nickname) ??
             (input.email ? input.email.split('@')[0] : undefined) ??
-            (input.name ?? undefined);
+            opt(input.name);
 
         if (existing) {
-            existing.email = input.email ?? existing.email;
-            existing.picture = input.picture ?? existing.picture;
-            existing.username = derivedUsername ?? existing.username;
-            existing.connectionType = input.connectionType ?? existing.connectionType ?? 'unknown';
-            return this.repo.save(existing);
+            await this.repo.update(
+                { id: existing.id },
+                {
+                    email: nn(input.email, existing.email),                 // required
+                    picture: opt(input.picture),                             // optional
+                    name: opt(input.name) ?? existing.name,                  // keep old if both undefined
+                    username: derivedUsername ?? existing.username,          // optional
+                    connectionType: nn(input.connectionType, existing.connectionType ?? 'unknown'),
+                    // ❌ do not include "location" here
+                }
+            );
+            return this.repo.findOneOrFail({ where: { id: existing.id } });
         }
 
         const created = this.repo.create({
-            sub: input.sub,
-            email: input.email ?? '',
-            picture: input.picture ?? undefined,
-            username: derivedUsername,
-            connectionType: input.connectionType ?? 'unknown',
+            sub: nn(input.sub),                                         // required
+            email: nn(input.email, ''),                                 // required (fallback to empty string)
+            picture: opt(input.picture),                                 // optional
+            name: opt(input.name),                                       // optional
+            username: derivedUsername,                                   // optional
+            connectionType: nn(input.connectionType, 'unknown'),         // required
+            // location not set here
         });
 
         return this.repo.save(created);
