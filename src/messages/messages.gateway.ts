@@ -25,7 +25,11 @@ export class MessagesGateway {
 
     handleConnection(client: Socket) {
         console.log('[WS] client connected id=%s auth=%o', client.id, client.handshake.auth);
-        // If you use guards, also log client.data after guard
+        const q = client.handshake.query as Partial<Record<'region' | 'groupId', string>>;
+        const region = (q.region || '').trim();
+        const groupId = (q.groupId || '').trim();
+        if (region) client.join(`region:${region}`);
+        if (groupId) client.join(`group:${groupId}`);
     }
 
     handleDisconnect(client: Socket) {
@@ -40,7 +44,7 @@ export class MessagesGateway {
 
     @SubscribeMessage('typing')
     async typing(@ConnectedSocket() socket: Socket, @MessageBody() payload: { groupId: string; isTyping: boolean }) {
-        socket.to(`group:${payload.groupId}`).emit('typing', { userId: socket.data?.user?.id, ...payload });
+        socket.to(`group:${payload.groupId}`).emit('typing', { userId: socket.data?.user?.sub, ...payload });
     }
 
     @SubscribeMessage('send_message')
@@ -48,7 +52,7 @@ export class MessagesGateway {
         @ConnectedSocket() socket: Socket,
         @MessageBody() payload: { groupId: string; dto: SendMessageDto },
     ) {
-        console.log("message recieved")
+        console.log('message received');
         const uid = socket.data?.user?.sub;
         console.log(uid, payload.groupId, payload.dto)
         const msg = await this.messages.sendMessage(uid, payload.groupId, payload.dto);

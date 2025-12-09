@@ -16,6 +16,6 @@ import { StorageModule } from 'src/storage/storage.module';
     imports: [TypeOrmModule.forFeature([Message, MessageAttachment, MessageRead, Group, User]), StorageModule],
     controllers: [MessagesController, UploadsController, MessagesRestController],
     providers: [MessagesService, MessagesGateway],
-    exports: [MessagesService],
+    exports: [MessagesService, MessagesGateway],
 })
 export class MessagesModule { }

@@ -10,6 +10,7 @@ import { GroupModule } from './group/group.module';
 import { MessagesModule } from './messages/messages.module';
 import { NewsModule } from './news/news.module';
 import { SafetyModule } from './safety/safety.module';
+import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { SafetyModule } from './safety/safety.module';
     GroupModule,
     MessagesModule,
     NewsModule,
-    SafetyModule
+    SafetyModule,
+    PredictiveHubModule
   ],
   controllers: [AppController],
   providers: [AppService],
