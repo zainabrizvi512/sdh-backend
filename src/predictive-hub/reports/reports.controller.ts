@@ -4,10 +4,6 @@ import { ReportsService } from './reports.service';
 import { CreateHazardReportDto } from './create-hazard-report.dto';
 import { MessagesGateway } from 'src/messages/messages.gateway';
 import type { Server } from 'socket.io';
-
-// ✅ use your existing auth decorator/guard
-// Example: @UseGuards(AuthGuard) and @Req() user
-// Here I assume you can read user id from req.user.sub
 import { Req } from '@nestjs/common';
 
 @Controller('reports')
