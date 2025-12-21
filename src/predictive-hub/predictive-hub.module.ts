@@ -10,11 +10,17 @@ import { DashboardService } from './dashboard/dashboard.service';
 import { DashboardController } from './dashboard/dashboard.controller';
 import { DisasterType } from 'src/safety/disaster-type.entity';
 import { MessagesModule } from 'src/messages/messages.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RiskAssessment, RiskSignal, DisasterType]), forwardRef(() => MessagesModule)],
+  imports: [
+    TypeOrmModule.forFeature([RiskAssessment, RiskSignal, DisasterType]), 
+    forwardRef(() => MessagesModule), 
+    forwardRef(() => ReportsModule)
+  ],
   controllers: [RiskController, DecisionsController, DashboardController],
   providers: [RiskService, DecisionsService, DashboardService],
-  exports: [],
+  // ADD THIS LINE
+  exports: [TypeOrmModule, RiskService], 
 })
 export class PredictiveHubModule {}
