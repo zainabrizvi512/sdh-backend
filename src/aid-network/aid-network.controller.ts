@@ -18,6 +18,8 @@ export class AidNetworkController {
     }
     
     @Get('incident-map')
-    async getNearbyIncidents(@Query('lat') lat: number, @Query('lng') lng: number) {}
+    async getNearbyIncidents(@Query('lat') lat: number, @Query('lng') lng: number) {
+        return [];
+    }
     
 }
