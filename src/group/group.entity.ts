@@ -15,6 +15,7 @@ export enum GroupType {
     FAMILY = 'family',
     FRIENDS = 'friends',
     TEAM = 'team',
+    EMERGENCY = 'emergency',
     OTHER = 'other',
 }
 
