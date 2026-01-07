@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group, GroupType } from 'src/group/group.entity';
 import { User } from '../users/user.entity';
-import { Message, MessageType } from 'src/messages/message.entity';
+import { Message, MessageKind, MessageType } from 'src/messages/message.entity';
 
 @Injectable() 
 export class AidNetworkService {
@@ -33,7 +33,7 @@ export class AidNetworkService {
             group: savedGroup,
             sender: user,
             type: MessageType.LOCATION,
-            kind: "location",
+            kind: MessageKind.LOCATION,
             text: `EMERGENCY ALERT: ${user.username} needs assistance!`,
             location_lat: lat,
             location_lng: lng,
