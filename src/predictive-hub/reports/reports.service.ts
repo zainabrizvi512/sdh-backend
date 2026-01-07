@@ -48,9 +48,9 @@ export class ReportsService {
     // ✅ log AFTER save
     console.log("✅ Signal saved id:", signal.id);
 
-    if (!dto.groupId) {
-      throw new BadRequestException("groupId is required for hazard reports");
-    }
+    // if (!dto.groupId) {
+    //   throw new BadRequestException("groupId is required for hazard reports");
+    // }
 
     // ---------------------------
     // 2) Save hazard message
