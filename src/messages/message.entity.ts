@@ -13,7 +13,14 @@ export enum MessageType {
     AUDIO = 'audio'
 }
 
-export type MessageKind = "text" | "location" | "system" | "audio";
+export enum MessageKind {
+    TEXT = "text",
+    LOCATION = "location",
+    SYSTEM = "system",
+    AUDIO = "audio",
+    IMAGE = "image",
+    HAZARD_REPORT = "hazard_report",
+}
 
 @Entity('messages')
 export class Message {
@@ -33,8 +40,8 @@ export class Message {
     @Column({ type: 'text', nullable: true })
     text?: string; // optional if images only
 
-    @Column({ type: "enum", enum: ["text", "location", "system", "audio", "image"], default: "text" })
-    kind!: MessageKind;
+    @Column({ type: "enum", enum: MessageKind, default: MessageKind.TEXT })
+    kind: MessageKind;
 
     @OneToMany(() => MessageAttachment, (a) => a.message, { cascade: true, eager: true })
     attachments: MessageAttachment[];
