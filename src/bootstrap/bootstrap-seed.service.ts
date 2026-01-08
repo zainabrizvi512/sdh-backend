@@ -53,6 +53,7 @@ export class BootstrapSeedService implements OnApplicationBootstrap {
                 email: SYSTEM_EMAIL,
                 name: SYSTEM_NAME,
                 username: 'sdh-system',
+                connectionType: 'system', // ✅ required
             });
 
             systemUser = await this.usersRepo.save(systemUser);
