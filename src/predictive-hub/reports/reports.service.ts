@@ -8,12 +8,15 @@ import { RiskService } from '../risk/risk.service';
 
 import { Message, MessageKind, MessageType } from 'src/messages/message.entity';
 import { Group } from 'src/group/group.entity';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ReportsService {
   constructor(
     @InjectRepository(RiskSignal)
     private readonly signalRepo: Repository<RiskSignal>,
+    @InjectRepository(User)
+    private readonly usersRepo: Repository<User>,
     @InjectRepository(Message)
     private readonly messageRepo: Repository<Message>,
     @InjectRepository(Group)
@@ -58,6 +61,11 @@ export class ReportsService {
       throw new BadRequestException('Global group not found. Seed it first.');
     }
 
+    const sender = await this.usersRepo.findOne({ where: { sub: userId } });
+    if (!sender) {
+      throw new BadRequestException('User not found for this token');
+    }
+
     // ---------------------------
     // 2) Save hazard message
     // ---------------------------
@@ -65,6 +73,7 @@ export class ReportsService {
       this.messageRepo.create({
         // relation
         group: globalGroup,
+        sender,
 
         kind: MessageKind.LOCATION,
         type: MessageType.LOCATION,
