@@ -48,41 +48,41 @@ export class ReportsService {
     // ✅ log AFTER save
     console.log("✅ Signal saved id:", signal.id);
 
-    // if (!dto.groupId) {
-    //   throw new BadRequestException("groupId is required for hazard reports");
-    // }
+    if (!dto.groupId) {
+      throw new BadRequestException("groupId is required for hazard reports");
+    }
 
     // ---------------------------
     // 2) Save hazard message
     // ---------------------------
-    // const msg = await this.messageRepo.save(
-    //   this.messageRepo.create({
-    //     // relation
-    //     group: dto.groupId ? ({ id: dto.groupId } as Group) : null,
+    const msg = await this.messageRepo.save(
+      this.messageRepo.create({
+        // relation
+        group: dto.groupId ? ({ id: dto.groupId } as Group) : null,
 
-    //     kind: MessageKind.LOCATION,
-    //     type: MessageType.LOCATION,
-    //     text: dto.text,
+        kind: MessageKind.LOCATION,
+        type: MessageType.LOCATION,
+        text: dto.text,
 
-    //     // If your Message entity has JSON `location`
-    //     location: {
-    //       lat: dto.lat,
-    //       lng: dto.lng,
-    //       accuracy: 10,
-    //     } as any,
+        // If your Message entity has JSON `location`
+        location: {
+          lat: dto.lat,
+          lng: dto.lng,
+          accuracy: 10,
+        } as any,
 
-    //     meta: {
-    //       reportType: 'hazard_report',
-    //       region: dto.region,
-    //       disasterTypeId: dto.disasterTypeId,
-    //       severity: dto.severity,
-    //       waterDepthCm: dto.waterDepthCm,
-    //       peopleAffected: dto.peopleAffected,
-    //       photoUrls: dto.photoUrls ?? [],
-    //       userId,
-    //     },
-    //   } as any),
-    // );
+        meta: {
+          reportType: 'hazard_report',
+          region: dto.region,
+          disasterTypeId: dto.disasterTypeId,
+          severity: dto.severity,
+          waterDepthCm: dto.waterDepthCm,
+          peopleAffected: dto.peopleAffected,
+          photoUrls: dto.photoUrls ?? [],
+          userId,
+        },
+      } as any),
+    );
 
     // ✅ log AFTER save
 
@@ -95,7 +95,7 @@ export class ReportsService {
     return {
       ok: true,
       signal,
-      // msg,
+      msg,
       updated,
     };
   }

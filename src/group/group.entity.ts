@@ -38,9 +38,12 @@ export class Group {
     })
     type: GroupType;
 
-    // Who created the group (optional but very useful for permissions)
     @ManyToOne(() => User, { nullable: false, eager: true })
     owner: User;
+
+    @Index({ unique: true })
+    @Column({ type: 'varchar', length: 60, unique: true })
+    slug: string;
 
     @ManyToMany(() => User, { cascade: false, eager: true })
     @JoinTable({

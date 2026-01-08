@@ -11,6 +11,7 @@ import { MessagesModule } from './messages/messages.module';
 import { NewsModule } from './news/news.module';
 import { SafetyModule } from './safety/safety.module';
 import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
+import { BootstrapModule } from './bootstrap/bootstrap.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
     MessagesModule,
     NewsModule,
     SafetyModule,
-    PredictiveHubModule
+    PredictiveHubModule,
+    BootstrapModule
   ],
   controllers: [AppController],
   providers: [AppService],
