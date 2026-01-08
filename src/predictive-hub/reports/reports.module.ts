@@ -8,10 +8,11 @@ import { ReportsController } from './reports.controller';
 import { MessagesModule } from 'src/messages/messages.module';
 import { Message } from 'src/messages/message.entity';
 import { PredictiveHubModule } from '../predictive-hub.module';
+import { Group } from 'src/group/group.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RiskSignal, Message]),
+    TypeOrmModule.forFeature([RiskSignal, Message, Group]),
     forwardRef(() => MessagesModule),
     forwardRef(() => PredictiveHubModule)
   ],
