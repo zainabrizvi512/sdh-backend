@@ -16,6 +16,8 @@ export class ReportsService {
     private readonly signalRepo: Repository<RiskSignal>,
     @InjectRepository(Message)
     private readonly messageRepo: Repository<Message>,
+    @InjectRepository(Group)
+    private readonly groupsRepo: Repository<Group>,
     private readonly risk: RiskService,
   ) { }
 
@@ -48,8 +50,12 @@ export class ReportsService {
     // ✅ log AFTER save
     console.log("✅ Signal saved id:", signal.id);
 
-    if (!dto.groupId) {
-      throw new BadRequestException("groupId is required for hazard reports");
+    const globalGroup = await this.groupsRepo.findOne({
+      where: { slug: 'global' },
+    });
+
+    if (!globalGroup) {
+      throw new BadRequestException('Global group not found. Seed it first.');
     }
 
     // ---------------------------
@@ -58,7 +64,7 @@ export class ReportsService {
     const msg = await this.messageRepo.save(
       this.messageRepo.create({
         // relation
-        group: dto.groupId ? ({ id: dto.groupId } as Group) : null,
+        group: globalGroup,
 
         kind: MessageKind.LOCATION,
         type: MessageType.LOCATION,
