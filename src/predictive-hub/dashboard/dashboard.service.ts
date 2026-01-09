@@ -24,10 +24,13 @@ export class DashboardService {
     `);
 
     const volume = await this.ds.query(`
-      select date_trunc('hour',"createdAt") as h, count(*) as c
+      select 
+      to_char(date_trunc('hour', "createdAt"), 'Mon DD, HH:MI AM') as h, 
+      count(*) as c
       from public.messages
       where "createdAt" > now() - interval '12 hours'
-      group by 1 order by 1
+      group by date_trunc('hour', "createdAt")
+      order by date_trunc('hour', "createdAt")
     `);
 
     return { risk, hazards, volume };
