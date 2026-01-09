@@ -57,10 +57,13 @@ export class RiskService {
 
   async latest(region: string) {
     return this.riskRepo.query(`
-      select distinct on ("disasterTypeId") *
-      from public.risk_assessments
-      where region=$1
-      order by "disasterTypeId","createdAt" desc
+      select distinct on (r."disasterTypeId") 
+      r.*, 
+      d.name as "disasterName"
+      from public.risk_assessments r
+      join public.disaster_types d on d.id = r."disasterTypeId"
+      where r.region = $1
+      order by r."disasterTypeId", r."createdAt" desc
     `,[region]);
   }
 }
