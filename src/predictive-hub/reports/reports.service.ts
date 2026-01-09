@@ -80,11 +80,9 @@ export class ReportsService {
         text: dto.text,
 
         // If your Message entity has JSON `location`
-        location: {
-          lat: dto.lat,
-          lng: dto.lng,
-          accuracy: 10,
-        } as any,
+        location_lat: dto.lat,
+        location_lng: dto.lng,
+        location_accuracy: 10,
 
         meta: {
           reportType: 'hazard_report',
