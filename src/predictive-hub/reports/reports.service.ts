@@ -75,8 +75,8 @@ export class ReportsService {
         group: globalGroup,
         sender,
 
-        kind: MessageKind.LOCATION,
-        type: MessageType.LOCATION,
+        kind: MessageKind.HAZARD_REPORT,
+        type: MessageType.HAZARD_REPORT,
         text: dto.text,
 
         // If your Message entity has JSON `location`

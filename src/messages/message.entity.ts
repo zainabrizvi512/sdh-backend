@@ -10,7 +10,8 @@ export enum MessageType {
     TEXT = 'text',
     IMAGE = 'image',
     LOCATION = 'location',
-    AUDIO = 'audio'
+    AUDIO = 'audio',
+    HAZARD_REPORT = "hazard_report",
 }
 
 export enum MessageKind {
