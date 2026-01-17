@@ -14,7 +14,7 @@ export class RescueController {
   async createRequest(@Body() dto: CreateRequestDto, @Req() req: any) {
     // Assuming 'req.user.id' comes from AuthGuard
     const currentUserId =  req.user.sub;
-    console.log("userId", currentUserId, dto);
+    console.log("userId", currentUserId, req.user, dto);
     return this.rescueService.createRequest(currentUserId, dto);
   }
 
