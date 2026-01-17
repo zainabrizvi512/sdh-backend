@@ -13,8 +13,9 @@ export class RescueController {
   @Post('requests')
   async createRequest(@Body() dto: CreateRequestDto, @Req() req: any) {
     // Assuming 'req.user.id' comes from AuthGuard
-    console.log("userId", req.user.id, dto);
-    return this.rescueService.createRequest(req.user.id, dto);
+    const currentUserId =  req.user.sub;
+    console.log("userId", currentUserId, dto);
+    return this.rescueService.createRequest(currentUserId, dto);
   }
 
   // --- Screen 2: Allocation List ---
@@ -26,7 +27,8 @@ export class RescueController {
   // --- Screen 3: Feedback ---
   @Post('feedback')
   async createFeedback(@Body() dto: CreateFeedbackDto, @Req() req: any) {
-    return this.rescueService.submitFeedback(req.user.id, dto);
+    const currentUserId =  req.user.sub;
+    return this.rescueService.submitFeedback(currentUserId, dto);
   }
 
   // --- Screen 4: Analytics Dashboard ---
