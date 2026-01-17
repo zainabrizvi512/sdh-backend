@@ -5,6 +5,7 @@ import { RescueController } from './rescue.controller';
 import { ResourceRequest } from './resource_request.entity';
 import { ResourceAllocation } from './resource_allocation.entity';
 import { FieldReport } from './field_report.entity';
+import { User } from 'src/users/user.entity';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { FieldReport } from './field_report.entity';
       ResourceRequest,
       ResourceAllocation,
       FieldReport,
+      User
     ]),
   ],
   controllers: [RescueController],
