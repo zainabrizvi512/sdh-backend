@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { RescueService } from './rescue.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { CreateRequestDto } from './dto/create-request.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('rescue')
 export class RescueController {
   constructor(private readonly rescueService: RescueService) {}
