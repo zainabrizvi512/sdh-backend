@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { ResourceRequest } from './resource_request.entity';
 import { ResourceAllocation } from './resource_allocation.entity';
 import { FieldReport } from './field_report.entity';
+import { CreateRequestDto } from './dto/create-request.dto';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class RescueService {
@@ -14,13 +16,19 @@ export class RescueService {
     private allocationRepo: Repository<ResourceAllocation>,
     @InjectRepository(FieldReport)
     private reportRepo: Repository<FieldReport>,
+    @InjectRepository(User)
+    private usersRepo: Repository<User>,
   ) {}
 
   // 1. Submit Request logic
-  async createRequest(userId: string, dto: any) {
-    const newRequest = this.requestRepo.create({
+  async createRequest(userId: string, dto: CreateRequestDto) {
+    const user = await this.usersRepo.findOne({ where: { sub: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const newRequest = await this.requestRepo.create({
       ...dto,
-      requester: { id: userId }, // Link to existing User entity
+      requester: { id: user.id }, // Link to existing User entity
       status: 'PENDING'
     });
     return this.requestRepo.save(newRequest);
