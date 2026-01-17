@@ -13,6 +13,7 @@ export class RescueController {
   @Post('requests')
   async createRequest(@Body() dto: CreateRequestDto, @Req() req: any) {
     // Assuming 'req.user.id' comes from AuthGuard
+    console.log("userId", req.user.id, dto);
     return this.rescueService.createRequest(req.user.id, dto);
   }
 
