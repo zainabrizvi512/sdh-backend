@@ -6,6 +6,7 @@ import { ResourceRequest } from './resource_request.entity';
 import { ResourceAllocation } from './resource_allocation.entity';
 import { FieldReport } from './field_report.entity';
 import { User } from 'src/users/user.entity';
+import { NGO } from 'src/ngo/ngo.entity';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { User } from 'src/users/user.entity';
       ResourceRequest,
       ResourceAllocation,
       FieldReport,
-      User
+      User,
+      NGO
     ]),
   ],
   controllers: [RescueController],

@@ -1,6 +1,7 @@
 import { User } from "src/users/user.entity";
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn } from "typeorm";
 import { ResourceRequest } from "./resource_request.entity";
+import { NGO } from "src/ngo/ngo.entity";
 
 @Entity('resource_allocations')
 export class ResourceAllocation {
@@ -12,6 +13,9 @@ export class ResourceAllocation {
 
   @ManyToOne(() => User) // The NGO or Admin fulfilling the request
   provider: User; 
+
+  @ManyToOne(() => NGO) 
+  ngo: NGO;
   
   @Column({ nullable: true })
   vehicleDetails: string; // e.g., "Edhi Ambulance"

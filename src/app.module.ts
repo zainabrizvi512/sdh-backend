@@ -13,6 +13,7 @@ import { SafetyModule } from './safety/safety.module';
 import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
 import { BootstrapModule } from './bootstrap/bootstrap.module';
 import { RescueModule } from './resource-requests/rescue.module';
+import { NgoModule } from './ngo/ngo.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RescueModule } from './resource-requests/rescue.module';
     SafetyModule,
     PredictiveHubModule,
     RescueModule,
+    NgoModule,
     BootstrapModule
   ],
   controllers: [AppController],
