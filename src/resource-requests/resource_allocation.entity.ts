@@ -12,15 +12,19 @@ export class ResourceAllocation {
   request: ResourceRequest;
 
   @ManyToOne(() => User) // The NGO or Admin fulfilling the request
-  provider: User; 
+  provider: User;
 
-  @ManyToOne(() => NGO) 
+  @ManyToOne(() => NGO)
   ngo: NGO;
-  
+
   @Column({ nullable: true })
   vehicleDetails: string; // e.g., "Edhi Ambulance"
 
-  @Column({ default: 'ACTIVE' }) // ACTIVE, COMPLETED
+  @Column({
+    type: 'enum',
+    enum: ['PENDING', 'DISPATCHED', 'DELIVERED', 'CANCELLED'], // DISPATCHED = "In Transit"
+    default: 'PENDING'
+  })
   status: string;
 
   @CreateDateColumn()

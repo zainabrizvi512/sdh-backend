@@ -1,0 +1,80 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { RiskSignal } from 'src/predictive-hub/risk/risk-signal.entity';
+import { ResourceRequest } from 'src/resource-requests/resource_request.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class EmergencyService {
+  constructor(
+    @InjectRepository(RiskSignal)
+    private riskRepo: Repository<RiskSignal>,
+    @InjectRepository(ResourceRequest)
+    private requestRepo: Repository<ResourceRequest>,
+  ) {}
+
+  // 1. SOS Logic
+  async createSOS(userId: string, lat: number, long: number) {
+    // Create a high-priority Risk Signal
+    const sosSignal = this.riskRepo.create({
+      source: 'USER_SOS',
+      risk_type: 'SOS', // You might need to add this column or use existing 'type'
+      region: 'Islamabad', // In real app, reverse-geocode lat/long to get city
+      latitude: lat,
+      longitude: long,
+      score: 100, // Max urgency
+      description: 'Emergency SOS Signal from User',
+      createdAt: new Date()
+    });
+    
+    // TODO: Trigger Notification to Admin/NGOs here
+    return this.riskRepo.save(sosSignal);
+  }
+
+  // 2. Incident Map Logic
+  async findAllIncidents() {
+    // Fetches recent signals for the map
+    return this.riskRepo.find({
+      order: { createdAt: 'DESC' },
+      take: 20 // Last 20 incidents
+    });
+  }
+
+  // 3. Live Tracking Logic
+  async trackUserLatestRequest(userId: string) {
+    // Find the most recent request by this user
+    const latestRequest = await this.requestRepo.findOne({
+      where: { requester: { id: userId } },
+      order: { createdAt: 'DESC' },
+      relations: ['allocations', 'allocations.ngo']
+    });
+
+    if (!latestRequest) return null;
+
+    // Determine overall status for the Progress Bar
+    // Logic: If any allocation is DISPATCHED, the status is "In Transit"
+    const activeAllocation = latestRequest.allocations.find(a => a.status === 'DISPATCHED' || a.status === 'ACTIVE');
+    const completedAllocation = latestRequest.allocations.find(a => a.status === 'DELIVERED');
+
+    let trackingStatus = 'Requested';
+    let responderDetails = null;
+
+    if (completedAllocation) {
+      trackingStatus = 'Delivered';
+      responderDetails = completedAllocation;
+    } else if (activeAllocation) {
+      trackingStatus = 'In Transit';
+      responderDetails = activeAllocation;
+    }
+
+    return {
+      requestId: latestRequest.id,
+      status: trackingStatus, // "Requested", "In Transit", "Delivered"
+      responder: responderDetails ? {
+        vehicle: responderDetails.vehicleDetails, // "Ambulance #42"
+        ngoName: responderDetails.ngo.name,
+        statusLabel: 'Approaching' // Dynamic label based on geolocation math in future
+      } : null
+    };
+  }
+}
