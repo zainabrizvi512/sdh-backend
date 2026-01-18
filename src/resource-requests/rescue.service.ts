@@ -77,11 +77,26 @@ export class RescueService {
 
   // 2. Allocation List logic
   async findAllocations() {
-    // Returns data like: { provider: "Edhi", vehicle: "Ambulance", status: "Active" }
-    return this.allocationRepo.find({
-      relations: ['provider', 'request'],
-      where: { status: 'ACTIVE' }
+    const allocations = await this.allocationRepo.find({
+      // 1. Fetch 'ngo' (not provider) and 'request' relations
+      relations: ['ngo', 'request'], 
+      where: { status: 'ACTIVE' },
+      order: { allocatedAt: 'DESC' }
     });
+
+    // 2. Map the results to a cleaner format for the Frontend
+    return allocations.map(allocation => ({
+      id: allocation.id,
+      status: allocation.status,
+      vehicleDetails: allocation.vehicleDetails,
+      allocatedAt: allocation.allocatedAt,
+      // Flatten NGO Name
+      ngoName: allocation.ngo ? allocation.ngo.name : 'Unknown NGO',
+      ngoIcon: allocation.ngo ? allocation.ngo.logoUrl : null,
+      // Flatten Resource Type so it's easy to show in the subtitle
+      resourceType: allocation.request ? allocation.request.resourceType : 'General Aid',
+      quantity: allocation.request ? allocation.request.quantity : 0,
+    }));
   }
 
   // 3. Feedback logic
