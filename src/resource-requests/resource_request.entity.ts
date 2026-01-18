@@ -1,5 +1,6 @@
 import { User } from "src/users/user.entity";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, OneToMany } from "typeorm";
+import { ResourceAllocation } from "./resource_allocation.entity";
 
 @Entity('resource_requests')
 export class ResourceRequest {
@@ -21,6 +22,9 @@ export class ResourceRequest {
 
   @ManyToOne(() => User) // The user requesting aid
   requester: User;
+
+  @OneToMany(() => ResourceAllocation, (allocation) => allocation.request)
+  allocations: ResourceAllocation[];
 
   @CreateDateColumn()
   createdAt: Date;

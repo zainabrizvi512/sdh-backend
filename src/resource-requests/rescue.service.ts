@@ -6,6 +6,7 @@ import { ResourceAllocation } from './resource_allocation.entity';
 import { FieldReport } from './field_report.entity';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { User } from 'src/users/user.entity';
+import { NGO } from 'src/ngo/ngo.entity';
 
 @Injectable()
 export class RescueService {
@@ -18,7 +19,9 @@ export class RescueService {
     private reportRepo: Repository<FieldReport>,
     @InjectRepository(User)
     private usersRepo: Repository<User>,
-  ) {}
+    @InjectRepository(NGO)
+    private ngoRepo: Repository<NGO>,
+  ) { }
 
   // 1. Submit Request logic
   async createRequest(userId: string, dto: CreateRequestDto) {
@@ -31,7 +34,45 @@ export class RescueService {
       requester: { id: user.id }, // Link to existing User entity
       status: 'PENDING'
     });
-    return this.requestRepo.save(newRequest);
+
+    const savedRequest = await this.requestRepo.save(newRequest);
+
+    // 2. Dynamic Allocation Logic (Auto-assign NGO)
+    await this.autoAllocateToNgo(savedRequest);
+
+    return this.requestRepo.findOne({
+      where: { id: savedRequest.id },
+      relations: ['allocations', 'allocations.ngo'] // Return with allocation details
+    });
+  }
+
+  // --- HELPER FUNCTION: AUTO ALLOCATION ---
+  private async autoAllocateToNgo(request: ResourceRequest) {
+    // A. Fetch all active NGOs
+    const ngos = await this.ngoRepo.find({ where: { isActive: true } });
+
+    if (ngos.length === 0) {
+      console.warn("⚠️ No NGOs available for auto-allocation.");
+      return;
+    }
+
+    // B. Pick a random NGO (Simulating a "Smart Matching" algorithm)
+    const randomNgo = ngos[Math.floor(Math.random() * ngos.length)];
+
+    // C. Create the Allocation Record
+    const allocation = this.allocationRepo.create({
+      request: request,
+      ngo: randomNgo,
+      status: 'ACTIVE',
+      vehicleDetails: `${randomNgo.name} Vehicle #${Math.floor(Math.random() * 100)}` // Dummy vehicle ID
+    });
+    await this.allocationRepo.save(allocation);
+
+    // D. Update Request Status
+    request.status = 'ALLOCATED';
+    await this.requestRepo.save(request);
+
+    console.log(`✅ Auto-allocated Request ${request.id} to ${randomNgo.name}`);
   }
 
   // 2. Allocation List logic
@@ -60,7 +101,7 @@ export class RescueService {
     // "Success %" = (Completed Requests / Total Requests) * 100
     const totalRequests = await this.requestRepo.count();
     const completedRequests = await this.requestRepo.count({ where: { status: 'COMPLETED' } });
-    
+
     const successRate = totalRequests === 0 ? 0 : Math.round((completedRequests / totalRequests) * 100);
 
     return {
