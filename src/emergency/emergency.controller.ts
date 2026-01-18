@@ -1,6 +1,8 @@
 import { Controller, Post, Get, Body, Query, Param, Req, UseGuards } from '@nestjs/common';
 import { EmergencyService } from './emergency.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('emergency')
 export class EmergencyController {
   constructor(private readonly emergencyService: EmergencyService) {}

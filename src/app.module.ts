@@ -14,6 +14,7 @@ import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
 import { BootstrapModule } from './bootstrap/bootstrap.module';
 import { RescueModule } from './resource-requests/rescue.module';
 import { NgoModule } from './ngo/ngo.module';
+import { EmergencyModule } from './emergency/emergency.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NgoModule } from './ngo/ngo.module';
     PredictiveHubModule,
     RescueModule,
     NgoModule,
+    EmergencyModule,
     BootstrapModule
   ],
   controllers: [AppController],
