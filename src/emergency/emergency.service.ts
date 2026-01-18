@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NgoInventory } from 'src/ngo/ngo-inventory.entity';
 import { RiskSignal } from 'src/predictive-hub/risk/risk-signal.entity';
 import { ResourceRequest } from 'src/resource-requests/resource_request.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +12,8 @@ export class EmergencyService {
     private riskRepo: Repository<RiskSignal>,
     @InjectRepository(ResourceRequest)
     private requestRepo: Repository<ResourceRequest>,
+    @InjectRepository(NgoInventory)
+    private inventoryRepo: Repository<NgoInventory>,
   ) {}
 
   // 1. SOS Logic
@@ -76,5 +79,19 @@ export class EmergencyService {
         statusLabel: 'Approaching' // Dynamic label based on geolocation math in future
       } : null
     };
+  }
+
+  async getLiveInventory(city: string) {
+    // Sums up quantity by Item Name for the given city
+    const result = await this.inventoryRepo
+      .createQueryBuilder('inv')
+      .select('inv.itemName', 'item')
+      .addSelect('SUM(inv.quantity)', 'available')
+      .where('inv.city = :city', { city })
+      .groupBy('inv.itemName')
+      .getRawMany();
+      
+    // result = [{ item: 'Blankets', available: '150' }, ...]
+    return result;
   }
 }

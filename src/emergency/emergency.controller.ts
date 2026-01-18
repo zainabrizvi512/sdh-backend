@@ -26,4 +26,10 @@ export class EmergencyController {
   async getMyLatestTracking(@Req() req: any) {
     return this.emergencyService.trackUserLatestRequest(req.user?.id);
   }
+
+  @Get('inventory')
+  async getInventory(@Query('city') city: string) {
+    // Default to Islamabad if no city provided
+    return this.emergencyService.getLiveInventory(city || 'Islamabad');
+  }
 }
