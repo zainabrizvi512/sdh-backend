@@ -87,7 +87,7 @@ export class EmergencyService {
       .createQueryBuilder('inv')
       .select('inv.itemName', 'item')
       .addSelect('SUM(inv.quantity)', 'available')
-      .where('inv.city = :city', { city })
+    //   .where('inv.city = :city', { city })
       .groupBy('inv.itemName')
       .getRawMany();
       
