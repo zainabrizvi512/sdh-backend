@@ -101,9 +101,13 @@ export class RescueService {
 
   // 3. Feedback logic
   async submitFeedback(userId: string, dto: any) {
+    const user = await this.usersRepo.findOne({ where: { sub: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
     const feedback = this.reportRepo.create({
       observation: dto.observation,
-      reporter: { id: userId }
+      reporter: { id: user.id }
     });
     return this.reportRepo.save(feedback);
   }
