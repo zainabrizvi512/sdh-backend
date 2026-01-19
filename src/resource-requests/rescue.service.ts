@@ -63,7 +63,7 @@ export class RescueService {
     const allocation = this.allocationRepo.create({
       request: request,
       ngo: randomNgo,
-      status: 'ACTIVE',
+      status: 'PENDING',
       vehicleDetails: `${randomNgo.name} Vehicle #${Math.floor(Math.random() * 100)}` // Dummy vehicle ID
     });
     await this.allocationRepo.save(allocation);
