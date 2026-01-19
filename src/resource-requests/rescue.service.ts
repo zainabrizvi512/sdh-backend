@@ -80,7 +80,7 @@ export class RescueService {
     const allocations = await this.allocationRepo.find({
       // 1. Fetch 'ngo' (not provider) and 'request' relations
       relations: ['ngo', 'request'], 
-      where: { status: 'ACTIVE' },
+      where: { status: 'PENDING' },
       order: { allocatedAt: 'DESC' }
     });
 
@@ -127,5 +127,26 @@ export class RescueService {
       aidSent: aidSentCount,
       successRate: successRate
     };
+  }
+
+  async updateAllocationStatus(allocationId: string, status: 'DISPATCHED' | 'DELIVERED') {
+    const allocation = await this.allocationRepo.findOne({
+      where: { id: allocationId },
+      relations: ['request']
+    });
+
+    if (!allocation) throw new Error('Allocation not found');
+
+    // 1. Update the Driver/Allocation Status
+    allocation.status = status;
+    await this.allocationRepo.save(allocation);
+
+    // 2. If Delivered, mark the User's Request as COMPLETED
+    if (status === 'DELIVERED') {
+      allocation.request.status = 'COMPLETED';
+      await this.requestRepo.save(allocation.request);
+    }
+
+    return allocation;
   }
 }
