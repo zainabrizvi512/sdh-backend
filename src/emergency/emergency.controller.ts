@@ -32,4 +32,9 @@ export class EmergencyController {
     // Default to Islamabad if no city provided
     return this.emergencyService.getLiveInventory(city || 'Islamabad');
   }
+
+  @Get('tracking')
+  async getMyTrackingList(@Req() req: any) {
+    return this.emergencyService.trackUserRequests(req.user?.id);
+  }
 }

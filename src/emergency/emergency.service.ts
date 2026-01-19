@@ -94,4 +94,49 @@ export class EmergencyService {
     // result = [{ item: 'Blankets', available: '150' }, ...]
     return result;
   }
+
+  // ... existing imports
+  
+  // NEW: Get Tracking for ALL user requests
+  async trackUserRequests(userId: string) {
+    // 1. Fetch last 10 requests for this user
+    const requests = await this.requestRepo.find({
+      where: { requester: { id: userId } },
+      order: { createdAt: 'DESC' },
+      take: 10,
+      relations: ['allocations', 'allocations.ngo']
+    });
+
+    // 2. Map each request to the Tracking Status structure
+    return requests.map(req => {
+      // Logic to determine status for THIS specific request
+      // 'PENDING', 'DISPATCHED', 'DELIVERED', 'CANCELLED'
+      const activeAllocation = req.allocations.find(a => a.status === 'DISPATCHED' || a.status === 'PENDING');
+      const completedAllocation = req.allocations.find(a => a.status === 'DELIVERED');
+
+      let trackingStatus = 'Requested';
+      let responderDetails = null;
+
+      if (completedAllocation) {
+        trackingStatus = 'Delivered';
+        responderDetails = completedAllocation;
+      } else if (activeAllocation) {
+        trackingStatus = 'In Transit';
+        responderDetails = activeAllocation;
+      }
+
+      return {
+        requestId: req.id,
+        resourceType: req.resourceType, // e.g. "Boats"
+        quantity: req.quantity,
+        createdAt: req.createdAt,
+        status: trackingStatus, 
+        responder: responderDetails ? {
+          vehicle: responderDetails.vehicleDetails,
+          ngoName: responderDetails.ngo.name,
+          statusLabel: trackingStatus === 'Delivered' ? 'Arrived' : 'Approaching'
+        } : null
+      };
+    });
+  }
 }
