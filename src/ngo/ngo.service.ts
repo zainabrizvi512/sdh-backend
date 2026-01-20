@@ -1,8 +1,9 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { NGO } from './ngo.entity';
 import { NgoInventory } from './ngo-inventory.entity';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class NgoService implements OnModuleInit {
@@ -11,6 +12,8 @@ export class NgoService implements OnModuleInit {
     private ngoRepo: Repository<NGO>,
     @InjectRepository(NgoInventory) 
     private inventoryRepo: Repository<NgoInventory>,
+    @InjectRepository(User) 
+    private userRepo: Repository<User>,
   ) {}
 
   // --- AUTOMATIC SEEDING ---
@@ -91,6 +94,30 @@ export class NgoService implements OnModuleInit {
 
   async findAll() {
     return this.ngoRepo.find({ where: { isActive: true } });
+  }
+
+  async joinNgo(userId: string, ngoId: string) {
+    // A. Validate NGO exists
+    const ngo = await this.ngoRepo.findOne({ where: { id: ngoId } });
+    if (!ngo) throw new NotFoundException('NGO not found');
+
+    // B. Update User record
+    // We update the 'ngo' relation for this user
+    await this.userRepo.update(userId, { ngo: ngo });
+
+    return {
+      success: true,
+      message: `You have successfully joined ${ngo.name}`,
+      ngo: ngo
+    };
+  }
+
+  async getUserNgo(userId: string) {
+    const user = await this.userRepo.findOne({
+        where: { id: userId },
+        relations: ['ngo']
+    });
+    return user?.ngo || null;
   }
 
   async findOne(id: string) {
