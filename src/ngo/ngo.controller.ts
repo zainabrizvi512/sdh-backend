@@ -19,9 +19,10 @@ export class NgoController {
 
   @Post(':id/join')
   async joinNgo(@Param('id') ngoId: string, @Req() req: any) {
-    const userId = req.user?.id; 
+    const currentUserId = req.user.sub;
+    console.log("userId", currentUserId, req.user, ngoId);
     
-    return this.ngoService.joinNgo(userId, ngoId);
+    return this.ngoService.joinNgo(currentUserId, ngoId);
   }
 
   @Get('my-ngo')

@@ -97,6 +97,10 @@ export class NgoService implements OnModuleInit {
   }
 
   async joinNgo(userId: string, ngoId: string) {
+    const user = await this.userRepo.findOne({ where: { sub: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
     // A. Validate NGO exists
     const ngo = await this.ngoRepo.findOne({ where: { id: ngoId } });
     if (!ngo) throw new NotFoundException('NGO not found');
