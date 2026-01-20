@@ -107,7 +107,7 @@ export class NgoService implements OnModuleInit {
 
     // B. Update User record
     // We update the 'ngo' relation for this user
-    await this.userRepo.update(userId, { ngo: ngo });
+    await this.userRepo.update(user.id, { ngo: ngo });
 
     return {
       success: true,
