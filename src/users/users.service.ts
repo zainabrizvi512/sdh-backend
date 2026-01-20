@@ -85,7 +85,7 @@ export class UsersService {
                     connectionType: nn(input.connectionType, existing.connectionType ?? 'unknown'),
                 }
             );
-            return this.repo.findOneOrFail({ where: { id: existing.id } });
+            return this.repo.findOneOrFail({ where: { id: existing.id }, relations: ['ngo'] });
         }
 
         const created = this.repo.create({
