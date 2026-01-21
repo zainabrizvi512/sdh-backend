@@ -15,6 +15,7 @@ import { BootstrapModule } from './bootstrap/bootstrap.module';
 import { RescueModule } from './resource-requests/rescue.module';
 import { NgoModule } from './ngo/ngo.module';
 import { EmergencyModule } from './emergency/emergency.module';
+import { NgoChatModule } from './ngo-chat/ngo-chat.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { EmergencyModule } from './emergency/emergency.module';
     RescueModule,
     NgoModule,
     EmergencyModule,
+    NgoChatModule,
     BootstrapModule
   ],
   controllers: [AppController],
