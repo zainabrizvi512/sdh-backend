@@ -11,6 +11,11 @@ import { MessagesModule } from './messages/messages.module';
 import { NewsModule } from './news/news.module';
 import { SafetyModule } from './safety/safety.module';
 import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
+import { BootstrapModule } from './bootstrap/bootstrap.module';
+import { RescueModule } from './resource-requests/rescue.module';
+import { NgoModule } from './ngo/ngo.module';
+import { EmergencyModule } from './emergency/emergency.module';
+import { NgoChatModule } from './ngo-chat/ngo-chat.module';
 
 @Module({
   imports: [
@@ -22,7 +27,12 @@ import { PredictiveHubModule } from './predictive-hub/predictive-hub.module';
     MessagesModule,
     NewsModule,
     SafetyModule,
-    PredictiveHubModule
+    PredictiveHubModule,
+    RescueModule,
+    NgoModule,
+    EmergencyModule,
+    NgoChatModule,
+    BootstrapModule
   ],
   controllers: [AppController],
   providers: [AppService],

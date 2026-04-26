@@ -4,7 +4,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, In, LessThan, MoreThan, Repository } from 'typeorm';
 import { User } from '../users/user.entity';
-import { Message, MessageType } from './message.entity';
+import { Message, MessageKind, MessageType } from './message.entity';
 import { MessageAttachment } from './messageAttachment.entity';
 import { MessageRead } from './messageRead.entity';
 import { MessageKindEnum, SendMessageDto } from './dto/send-message.dto';
@@ -131,7 +131,7 @@ export class MessagesService {
                         ? dto.text ?? null
                         : null,
                 attachments,
-                kind: dto.kind,
+                kind: dto.kind as unknown as MessageKind,
                 location_lat: dto.kind === MessageKindEnum.LOCATION ? dto.location?.lat ?? null : null,
                 location_lng: dto.kind === MessageKindEnum.LOCATION ? dto.location?.lng ?? null : null,
                 location_accuracy: dto.kind === MessageKindEnum.LOCATION ? dto.location?.accuracy ?? null : null,
