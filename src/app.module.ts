@@ -16,6 +16,9 @@ import { RescueModule } from './resource-requests/rescue.module';
 import { NgoModule } from './ngo/ngo.module';
 import { EmergencyModule } from './emergency/emergency.module';
 import { NgoChatModule } from './ngo-chat/ngo-chat.module';
+import { EngagementHubModule } from './engagement-hub/engagement-hub.module';
+import { DonationNetworkModule } from './donation-network/donation-network.module';
+import { DisasterFrameworkModule } from './disaster-framework/disaster-framework.module';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { NgoChatModule } from './ngo-chat/ngo-chat.module';
     NgoModule,
     EmergencyModule,
     NgoChatModule,
+    EngagementHubModule,
+    DonationNetworkModule,
+    DisasterFrameworkModule,
     BootstrapModule
   ],
   controllers: [AppController],

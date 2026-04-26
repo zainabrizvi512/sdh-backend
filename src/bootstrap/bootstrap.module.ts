@@ -4,9 +4,34 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BootstrapSeedService } from './bootstrap-seed.service';
 import { User } from '../users/user.entity';
 import { Group } from '../group/group.entity';
+import { VolunteerActivity } from 'src/engagement-hub/volunteer-activity.entity';
+import { EngagementOpportunity } from 'src/engagement-hub/engagement-opportunity.entity';
+import { DonationCampaign } from 'src/donation-network/donation-campaign.entity';
+import { DonationTransaction } from 'src/donation-network/donation-transaction.entity';
+import { CommunityStory } from 'src/donation-network/community-story.entity';
+import { DisasterIncident } from 'src/disaster-framework/disaster-incident.entity';
+import { LiveCommunication } from 'src/disaster-framework/live-communication.entity';
+import { OperationalTask } from 'src/disaster-framework/operational-task.entity';
+import { IncidentTimelineEvent } from 'src/disaster-framework/incident-timeline.entity';
+import { NGO } from 'src/ngo/ngo.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Group])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Group,
+      NGO,
+      VolunteerActivity,
+      EngagementOpportunity,
+      DonationCampaign,
+      DonationTransaction,
+      CommunityStory,
+      DisasterIncident,
+      LiveCommunication,
+      OperationalTask,
+      IncidentTimelineEvent,
+    ]),
+  ],
   providers: [BootstrapSeedService],
 })
 export class BootstrapModule {}

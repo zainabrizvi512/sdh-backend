@@ -8,5 +8,6 @@ import { User } from 'src/users/user.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([NgoMessage, User])],
   providers: [NgoChatService, NgoChatGateway],
+  exports: [NgoChatService],
 })
 export class NgoChatModule {}
