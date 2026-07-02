@@ -19,6 +19,9 @@ import { NgoChatModule } from './ngo-chat/ngo-chat.module';
 import { EngagementHubModule } from './engagement-hub/engagement-hub.module';
 import { DonationNetworkModule } from './donation-network/donation-network.module';
 import { DisasterFrameworkModule } from './disaster-framework/disaster-framework.module';
+import { MentalHealthSupportModule } from './mental-health-support/mental-health-support.module';
+import { DataBackupSecurityModule } from './data-backup-security/data-backup-security.module';
+import { ReviewsFeedbackModule } from './reviews-feedback/reviews-feedback.module';
 
 @Module({
   imports: [
@@ -38,6 +41,9 @@ import { DisasterFrameworkModule } from './disaster-framework/disaster-framework
     EngagementHubModule,
     DonationNetworkModule,
     DisasterFrameworkModule,
+    MentalHealthSupportModule,
+    DataBackupSecurityModule,
+    ReviewsFeedbackModule,
     BootstrapModule
   ],
   controllers: [AppController],

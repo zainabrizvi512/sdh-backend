@@ -14,6 +14,14 @@ import { LiveCommunication } from 'src/disaster-framework/live-communication.ent
 import { OperationalTask } from 'src/disaster-framework/operational-task.entity';
 import { IncidentTimelineEvent } from 'src/disaster-framework/incident-timeline.entity';
 import { NGO } from 'src/ngo/ngo.entity';
+import { MentalHealthProfessional } from 'src/mental-health-support/mental-health-professional.entity';
+import { MentalHealthNgo } from 'src/mental-health-support/mental-health-ngo.entity';
+import { SelfHelpResource } from 'src/mental-health-support/self-help-resource.entity';
+import { StressTip } from 'src/mental-health-support/stress-tip.entity';
+import { AccessControlPolicy } from 'src/data-backup-security/access-control-policy.entity';
+import { BackupSnapshot } from 'src/data-backup-security/backup-snapshot.entity';
+import { RestoreTestLog } from 'src/data-backup-security/restore-test-log.entity';
+import { FeedbackSubmission } from 'src/reviews-feedback/feedback-submission.entity';
 
 @Module({
   imports: [
@@ -30,6 +38,14 @@ import { NGO } from 'src/ngo/ngo.entity';
       LiveCommunication,
       OperationalTask,
       IncidentTimelineEvent,
+      MentalHealthProfessional,
+      MentalHealthNgo,
+      SelfHelpResource,
+      StressTip,
+      AccessControlPolicy,
+      BackupSnapshot,
+      RestoreTestLog,
+      FeedbackSubmission,
     ]),
   ],
   providers: [BootstrapSeedService],
