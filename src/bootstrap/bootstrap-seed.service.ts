@@ -22,6 +22,7 @@ import { AccessControlPolicy, AccessControlRole } from 'src/data-backup-security
 import { BackupSnapshot, SnapshotType } from 'src/data-backup-security/backup-snapshot.entity';
 import { RestoreTestLog, RestoreTestStatus } from 'src/data-backup-security/restore-test-log.entity';
 import { FeedbackStatus, FeedbackSubmission } from 'src/reviews-feedback/feedback-submission.entity';
+import { DisasterType } from 'src/safety/disaster-type.entity';
 
 @Injectable()
 export class BootstrapSeedService implements OnApplicationBootstrap {
@@ -48,11 +49,13 @@ export class BootstrapSeedService implements OnApplicationBootstrap {
         @InjectRepository(BackupSnapshot) private readonly snapshotsRepo: Repository<BackupSnapshot>,
         @InjectRepository(RestoreTestLog) private readonly restoreTestRepo: Repository<RestoreTestLog>,
         @InjectRepository(FeedbackSubmission) private readonly feedbackRepo: Repository<FeedbackSubmission>,
+        @InjectRepository(DisasterType) private readonly disasterTypesRepo: Repository<DisasterType>,
     ) {}
 
     async onApplicationBootstrap() {
         try {
             await this.ensureSystemUserAndGlobalGroup();
+            await this.seedDisasterTypes();
             await this.seedEngagementHubData();
             await this.seedDonationNetworkData();
             await this.seedDisasterFrameworkData();
@@ -103,6 +106,20 @@ export class BootstrapSeedService implements OnApplicationBootstrap {
                 }),
             );
         }
+    }
+
+    private async seedDisasterTypes() {
+        const existing = await this.disasterTypesRepo.count();
+        if (existing > 0) return;
+
+        await this.disasterTypesRepo.save(
+            this.disasterTypesRepo.create([
+                { slug: 'flood', name: 'Flood' },
+                { slug: 'earthquake', name: 'Earthquake' },
+                { slug: 'fire', name: 'Fire' },
+                { slug: 'first-aid', name: 'First Aid' },
+            ]),
+        );
     }
 
     private async seedEngagementHubData() {

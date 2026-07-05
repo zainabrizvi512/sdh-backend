@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { ILike, Repository } from 'typeorm';
 import { News } from './news.entity';
 import { CreateNewsDto } from './dto/create-news.dto';
@@ -11,11 +12,20 @@ export class NewsService {
     constructor(
         @InjectRepository(News)
         private readonly repo: Repository<News>,
+        private readonly notifications: NotificationsService,
     ) { }
 
     async create(dto: CreateNewsDto): Promise<News> {
         const entity = this.repo.create(dto);
-        return this.repo.save(entity);
+        const saved = await this.repo.save(entity);
+
+        await this.notifications.broadcastByPreference('news', {
+            title: `New Update: ${saved.title}`,
+            body: saved.description?.slice(0, 120) ?? '',
+            data: { type: 'NEWS', newsId: saved.id },
+        });
+
+        return saved;
     }
 
     async findAll(query: QueryNewsDto) {

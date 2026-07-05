@@ -47,6 +47,22 @@ export class DisasterFrameworkService {
     return this.incidentsRepo.save(incident);
   }
 
+  async listIncidents() {
+    const incidents = await this.incidentsRepo.find({
+      order: { createdAt: 'DESC' },
+      take: 100,
+    });
+    return incidents.map((incident) => ({
+      id: incident.id,
+      title: incident.title,
+      description: incident.description ?? null,
+      sector: incident.sector,
+      severity: incident.severity,
+      status: incident.status,
+      createdAt: incident.createdAt,
+    }));
+  }
+
   async getDashboard() {
     const [activeIncidents, responders, criticalTasks, latestIncidents] = await Promise.all([
       this.incidentsRepo.count({ where: [{ status: IncidentStatus.OPEN }, { status: IncidentStatus.IN_PROGRESS }] }),

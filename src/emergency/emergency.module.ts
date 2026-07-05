@@ -5,6 +5,7 @@ import { EmergencyService } from './emergency.service';
 import { RiskSignal } from 'src/predictive-hub/risk/risk-signal.entity';
 import { ResourceRequest } from 'src/resource-requests/resource_request.entity';
 import { NgoInventory } from 'src/ngo/ngo-inventory.entity';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { NgoInventory } from 'src/ngo/ngo-inventory.entity';
       RiskSignal,
       ResourceRequest,
       NgoInventory
-    ])
+    ]),
+    NotificationsModule,
   ],
   controllers: [EmergencyController],
   providers: [EmergencyService],

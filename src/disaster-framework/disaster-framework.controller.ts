@@ -18,6 +18,11 @@ export class DisasterFrameworkController {
     return this.disasterFrameworkService.getDashboard();
   }
 
+  @Get('incidents')
+  listIncidents() {
+    return this.disasterFrameworkService.listIncidents();
+  }
+
   @Post('incidents')
   createIncident(@Body() dto: CreateIncidentDto) {
     return this.disasterFrameworkService.createIncident(dto);

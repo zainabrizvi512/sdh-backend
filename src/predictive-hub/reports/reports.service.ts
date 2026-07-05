@@ -50,9 +50,6 @@ export class ReportsService {
       }),
     );
 
-    // ✅ log AFTER save
-    console.log("✅ Signal saved id:", signal.id);
-
     const globalGroup = await this.groupsRepo.findOne({
       where: { slug: 'global' },
     });
@@ -96,9 +93,6 @@ export class ReportsService {
         },
       } as any),
     );
-
-    // ✅ log AFTER save
-
 
     // ---------------------------
     // 3) recompute risk + broadcast

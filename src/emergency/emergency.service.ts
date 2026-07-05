@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NgoInventory } from 'src/ngo/ngo-inventory.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { RiskSignal } from 'src/predictive-hub/risk/risk-signal.entity';
 import { ResourceRequest } from 'src/resource-requests/resource_request.entity';
 import { Repository } from 'typeorm';
@@ -14,6 +15,7 @@ export class EmergencyService {
     private requestRepo: Repository<ResourceRequest>,
     @InjectRepository(NgoInventory)
     private inventoryRepo: Repository<NgoInventory>,
+    private notifications: NotificationsService,
   ) {}
 
   // 1. SOS Logic
@@ -29,9 +31,16 @@ export class EmergencyService {
       description: 'Emergency SOS Signal from User',
       createdAt: new Date()
     });
-    
-    // TODO: Trigger Notification to Admin/NGOs here
-    return this.riskRepo.save(sosSignal);
+
+    const saved = await this.riskRepo.save(sosSignal);
+
+    await this.notifications.broadcastByPreference('emergencyAlerts', {
+      title: 'Emergency SOS Alert',
+      body: `A user has triggered an SOS near ${saved.region}. Immediate response may be needed.`,
+      data: { type: 'SOS', signalId: saved.id },
+    });
+
+    return saved;
   }
 
   // 2. Incident Map Logic

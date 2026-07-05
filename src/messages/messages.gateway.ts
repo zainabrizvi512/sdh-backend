@@ -2,11 +2,15 @@ import {
     ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer,
 } from '@nestjs/websockets';
 import { UseGuards } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Server, Socket } from 'socket.io';
+import { Repository } from 'typeorm';
 import { MessagesService } from './messages.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { WsAuthGuard } from 'src/auth/ws-auth.guard';
 import { MessageType } from './message.entity';
+import { Group } from 'src/group/group.entity';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 // If you have a WS AuthGuard that sets socket.data.user.id
 @UseGuards(WsAuthGuard)
@@ -17,7 +21,29 @@ import { MessageType } from './message.entity';
 export class MessagesGateway {
     @WebSocketServer() server: Server;
 
-    constructor(private readonly messages: MessagesService) { }
+    constructor(
+        private readonly messages: MessagesService,
+        private readonly notifications: NotificationsService,
+        @InjectRepository(Group)
+        private readonly groupRepo: Repository<Group>,
+    ) { }
+
+    private async notifyNewMessage(groupId: string, senderId: string, msg: any) {
+        const group = await this.groupRepo.findOne({ where: { id: groupId } });
+        if (!group) return;
+        const recipientIds = group.members
+            .map((m) => m.id)
+            .filter((id) => id !== senderId);
+        if (!recipientIds.length) return;
+
+        const senderName = msg?.sender?.name ?? 'Someone';
+        const body = msg?.text?.trim() || 'Sent a new message';
+        await this.notifications.notifyUsers(recipientIds, 'chatMessages', {
+            title: `${senderName} in ${group.name}`,
+            body,
+            data: { type: 'CHAT_MESSAGE', groupId, messageId: msg?.id },
+        });
+    }
 
     afterInit(server: Server) {
         console.log('[WS] /chat gateway initialised');
@@ -57,6 +83,7 @@ export class MessagesGateway {
         console.log(uid, payload.groupId, payload.dto)
         const msg = await this.messages.sendMessage(uid, payload.groupId, payload.dto);
         this.server.to(`group:${payload.groupId}`).emit('new_message', msg);
+        this.notifyNewMessage(payload.groupId, msg?.sender?.id, msg).catch(() => { });
         return msg;
     }
 
@@ -72,6 +99,7 @@ export class MessagesGateway {
             type: MessageType.LOCATION,
         });
         this.server.to(`group:${payload.groupId}`).emit('new_message', msg);
+        this.notifyNewMessage(payload.groupId, msg?.sender?.id, msg).catch(() => { });
         return msg;
     }
 

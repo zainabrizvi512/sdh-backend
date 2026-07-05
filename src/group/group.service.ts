@@ -23,6 +23,17 @@ export class GroupService {
         return u;
     }
 
+    private generateSlug(name: string): string {
+        const base = name
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '')
+            .slice(0, 40) || 'group';
+        const suffix = Math.random().toString(36).slice(2, 8);
+        return `${base}-${suffix}`;
+    }
+
     async create(ownerId: string, dto: CreateGroupDto): Promise<Group> {
         const owner = await this.getUserOrThrow(ownerId);
 
@@ -46,6 +57,7 @@ export class GroupService {
             type: dto.type,
             owner,
             members,
+            slug: this.generateSlug(dto.name),
         });
 
         return this.groupsRepo.save(group);

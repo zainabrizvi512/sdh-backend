@@ -11,9 +11,14 @@ import { Group } from 'src/group/group.entity';
 import { UploadsController } from './uploads.controller';
 import { MessagesRestController } from './messages.rest.controller';
 import { StorageModule } from 'src/storage/storage.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Message, MessageAttachment, MessageRead, Group, User]), StorageModule],
+    imports: [
+        TypeOrmModule.forFeature([Message, MessageAttachment, MessageRead, Group, User]),
+        StorageModule,
+        NotificationsModule,
+    ],
     controllers: [MessagesController, UploadsController, MessagesRestController],
     providers: [MessagesService, MessagesGateway],
     exports: [MessagesService, MessagesGateway],

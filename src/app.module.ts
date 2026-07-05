@@ -21,6 +21,7 @@ import { DonationNetworkModule } from './donation-network/donation-network.modul
 import { DisasterFrameworkModule } from './disaster-framework/disaster-framework.module';
 import { MentalHealthSupportModule } from './mental-health-support/mental-health-support.module';
 import { DataBackupSecurityModule } from './data-backup-security/data-backup-security.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsFeedbackModule } from './reviews-feedback/reviews-feedback.module';
 
 @Module({
@@ -43,6 +44,7 @@ import { ReviewsFeedbackModule } from './reviews-feedback/reviews-feedback.modul
     DisasterFrameworkModule,
     MentalHealthSupportModule,
     DataBackupSecurityModule,
+    NotificationsModule,
     ReviewsFeedbackModule,
     BootstrapModule
   ],

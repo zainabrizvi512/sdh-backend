@@ -22,6 +22,7 @@ import { AccessControlPolicy } from 'src/data-backup-security/access-control-pol
 import { BackupSnapshot } from 'src/data-backup-security/backup-snapshot.entity';
 import { RestoreTestLog } from 'src/data-backup-security/restore-test-log.entity';
 import { FeedbackSubmission } from 'src/reviews-feedback/feedback-submission.entity';
+import { DisasterType } from 'src/safety/disaster-type.entity';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { FeedbackSubmission } from 'src/reviews-feedback/feedback-submission.ent
       User,
       Group,
       NGO,
+      DisasterType,
       VolunteerActivity,
       EngagementOpportunity,
       DonationCampaign,

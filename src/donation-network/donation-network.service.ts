@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { NGO } from 'src/ngo/ngo.entity';
 import { NgoMessage } from 'src/ngo-chat/ngo-message.entity';
 import { NgoChatService } from 'src/ngo-chat/ngo-chat.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 import { User } from 'src/users/user.entity';
 import { In, Repository } from 'typeorm';
 import { CommunityStory } from './community-story.entity';
@@ -29,6 +30,7 @@ export class DonationNetworkService {
     @InjectRepository(CommunityStory)
     private readonly storiesRepo: Repository<CommunityStory>,
     private readonly ngoChatService: NgoChatService,
+    private readonly notifications: NotificationsService,
   ) { }
 
   private async getUserBySub(sub: string): Promise<User> {
@@ -54,7 +56,15 @@ export class DonationNetworkService {
       endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
     });
 
-    return this.campaignsRepo.save(campaign);
+    const saved = await this.campaignsRepo.save(campaign);
+
+    await this.notifications.broadcastByPreference('donationUpdates', {
+      title: `New Campaign: ${saved.title}`,
+      body: saved.description?.slice(0, 120) ?? '',
+      data: { type: 'DONATION_CAMPAIGN', campaignId: saved.id },
+    });
+
+    return saved;
   }
 
   async getCampaignDirectory() {

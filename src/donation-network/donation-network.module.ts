@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { NGO } from 'src/ngo/ngo.entity';
 import { NgoMessage } from 'src/ngo-chat/ngo-message.entity';
 import { NgoChatModule } from 'src/ngo-chat/ngo-chat.module';
+import { NotificationsModule } from 'src/notifications/notifications.module';
 import { User } from 'src/users/user.entity';
 import { CommunityStory } from './community-story.entity';
 import { DonationCampaign } from './donation-campaign.entity';
@@ -21,6 +22,7 @@ import { DonationTransaction } from './donation-transaction.entity';
       CommunityStory,
     ]),
     NgoChatModule,
+    NotificationsModule,
   ],
   controllers: [DonationNetworkController],
   providers: [DonationNetworkService],
